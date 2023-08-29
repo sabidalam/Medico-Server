@@ -279,7 +279,7 @@ async function run() {
 
       if (result.modifiedCount > 0) {
         res.redirect(
-          `http://localhost:3000/payment/sucess/${req.params.tranId}`
+          `https://medico-eb8e9.web.app/payment/sucess/${req.params.tranId}`
         )
       }
     })
