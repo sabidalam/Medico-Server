@@ -214,9 +214,9 @@ async function run() {
           total_amount: ordersWithStatusAndDate?.[0]?.price,
           currency: "BDT",
           tran_id: tran_id, // use unique tran_id for each api call
-          success_url: `http://localhost:5000/payment/sucess/${tran_id}`,
-          fail_url: "http://localhost:5000/fail",
-          cancel_url: "http://localhost:5000/cancel",
+          success_url: `https://medico-server.onrender.com/payment/sucess/${tran_id}`,
+          fail_url: "http://localhost:3030/fail",
+          cancel_url: "http://localhost:3030/cancel",
           ipn_url: "http://localhost:3030/ipn",
           shipping_method: "Courier",
           product_name: "Computer.",
@@ -279,7 +279,7 @@ async function run() {
 
       if (result.modifiedCount > 0) {
         res.redirect(
-          `http://localhost:3000/payment/sucess/${req.params.tranId}`
+          `https://medico-eb8e9.web.app/payment/sucess/${req.params.tranId}`
         )
       }
     })
