@@ -17,13 +17,17 @@ app.use(cors());
 app.use(express.json()); // Parse request bodies as JSON
 
 // require("./index.js");
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kxy80.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ifta3d6.mongodb.net/?retryWrites=true&w=majority`
 
 const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverApi: ServerApiVersion.v1,
-})
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+
 
 const store_id = process.env.STORE_ID
 const store_passwd = process.env.STORE_PASS
@@ -33,12 +37,9 @@ async function run() {
   try {
     await client.connect()
     const database = client.db("medico")
-    const productCollection = database.collection("medisin")
-    const productCollectionMain = database.collection("productMain")
+    const productCollectionMain = database.collection("medisin")
     const categoryProductCollection = database.collection("category")
     const orderCollection = database.collection("order")
-    const addUserCollection = database.collection("addUser")
-    const imageCollection = database.collection("images")
     const userCollection = database.collection("users")
 
     //post product
@@ -94,61 +95,61 @@ async function run() {
       }
     })
 
-    // users post api
-    app.post("/product", async (req, res) => {
-      const product = req.body
-      const result = await productCollection.insertOne(product)
-      res.json(result)
-    })
-    // get single product
-    app.get("/product/:id", async (req, res) => {
-      const id = req.params.id
-      const query = { _id: ObjectId(id) }
-      const question = await productCollection.findOne(query)
-      res.json(question)
-    })
-    // get all product
-    app.get("/product", async (req, res) => {
-      const cursor = productCollection.find({})
-      const user = await cursor.toArray()
-      res.send(user)
-    })
+    // // users post api
+    // app.post("/product", async (req, res) => {
+    //   const product = req.body
+    //   const result = await productCollection.insertOne(product)
+    //   res.json(result)
+    // })
+    // // get single product
+    // app.get("/product/:id", async (req, res) => {
+    //   const id = req.params.id
+    //   const query = { _id: ObjectId(id) }
+    //   const question = await productCollection.findOne(query)
+    //   res.json(question)
+    // })
+    // // get all product
+    // app.get("/product", async (req, res) => {
+    //   const cursor = productCollection.find({})
+    //   const user = await cursor.toArray()
+    //   res.send(user)
+    // })
 
-    // update product
-    app.put("/product", async (req, res) => {
-      const product = req.body
-      const filter = { _id: ObjectId(product?._id) }
-      const options = { upsert: true }
-      const updateDoc = { $set: product }
-      const result = await productCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      )
-      res.json(result)
-    })
+    // // update product
+    // app.put("/product", async (req, res) => {
+    //   const product = req.body
+    //   const filter = { _id: ObjectId(product?._id) }
+    //   const options = { upsert: true }
+    //   const updateDoc = { $set: product }
+    //   const result = await productCollection.updateOne(
+    //     filter,
+    //     updateDoc,
+    //     options
+    //   )
+    //   res.json(result)
+    // })
 
-    //delete product
+    // //delete product
 
-    app.delete("/product/:id", async (req, res) => {
-      const id = req.params.id
-      const query = { _id: ObjectId(id) }
-      const result = await productCollection.deleteOne(query)
-      res.json(result)
-    })
+    // app.delete("/product/:id", async (req, res) => {
+    //   const id = req.params.id
+    //   const query = { _id: ObjectId(id) }
+    //   const result = await productCollection.deleteOne(query)
+    //   res.json(result)
+    // })
 
-    // upload single image info
-    app.post("/image", async (req, res) => {
-      const image = req.body
-      const result = await imageCollection.insertOne(image)
-      res.json(result)
-    })
-    // get image
-    app.get("/image", async (req, res) => {
-      const cursor = imageCollection.find({})
-      const user = await cursor.toArray()
-      res.send(user)
-    })
+    // // upload single image info
+    // app.post("/image", async (req, res) => {
+    //   const image = req.body
+    //   const result = await imageCollection.insertOne(image)
+    //   res.json(result)
+    // })
+    // // get image
+    // app.get("/image", async (req, res) => {
+    //   const cursor = imageCollection.find({})
+    //   const user = await cursor.toArray()
+    //   res.send(user)
+    // })
 
     // category post api
     //  const categoryProductCollection = database.collection("category");
@@ -192,7 +193,9 @@ async function run() {
       const query = { _id: ObjectId(id) }
       const result = await categoryProductCollection.deleteOne(query)
       res.json(result)
-    })
+    });
+
+    // SSL-Commerz
     const tran_id = new ObjectId().toString()
     app.post("/order", async (req, res) => {
       try {
@@ -212,8 +215,8 @@ async function run() {
           currency: "BDT",
           tran_id: tran_id, // use unique tran_id for each api call
           success_url: `http://localhost:5000/payment/sucess/${tran_id}`,
-          fail_url: "http://localhost:3030/fail",
-          cancel_url: "http://localhost:3030/cancel",
+          fail_url: "http://localhost:5000/fail",
+          cancel_url: "http://localhost:5000/cancel",
           ipn_url: "http://localhost:3030/ipn",
           shipping_method: "Courier",
           product_name: "Computer.",
@@ -338,47 +341,47 @@ async function run() {
     // ADD USER TEST.........
     // category post api
     //    const categoryProductCollection = database.collection("category");
-    app.post("/add", async (req, res) => {
-      const category = req.body
-      const result1 = await addUserCollection.insertOne(category)
-      res.json(result1)
-    })
-    // get single category
-    app.get("/add/:id", async (req, res) => {
-      const id = req.params.id
-      const query1 = { _id: ObjectId(id) }
-      const question1 = await addUserCollection.findOne(query1)
-      res.json(question1)
-    })
-    // get all category
-    app.get("/add", async (req, res) => {
-      const cursor1 = addUserCollection.find({})
-      const user1 = await cursor1.toArray()
-      res.send(user1)
-    })
+    // app.post("/add", async (req, res) => {
+    //   const category = req.body
+    //   const result1 = await addUserCollection.insertOne(category)
+    //   res.json(result1)
+    // })
+    // // get single category
+    // app.get("/add/:id", async (req, res) => {
+    //   const id = req.params.id
+    //   const query1 = { _id: ObjectId(id) }
+    //   const question1 = await addUserCollection.findOne(query1)
+    //   res.json(question1)
+    // })
+    // // get all category
+    // app.get("/add", async (req, res) => {
+    //   const cursor1 = addUserCollection.find({})
+    //   const user1 = await cursor1.toArray()
+    //   res.send(user1)
+    // })
 
-    // update category
-    app.put("/add", async (req, res) => {
-      const category = req.body
-      const filter = { _id: ObjectId(category?._id) }
-      const options = { upsert: true }
-      const updateDoc = { $set: category }
-      const result = await addUserCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      )
-      res.json(result)
-    })
+    // // update category
+    // app.put("/add", async (req, res) => {
+    //   const category = req.body
+    //   const filter = { _id: ObjectId(category?._id) }
+    //   const options = { upsert: true }
+    //   const updateDoc = { $set: category }
+    //   const result = await addUserCollection.updateOne(
+    //     filter,
+    //     updateDoc,
+    //     options
+    //   )
+    //   res.json(result)
+    // })
 
-    //delete product
+    // //delete product
 
-    app.delete("/add/:id", async (req, res) => {
-      const id = req.params.id
-      const query = { _id: ObjectId(id) }
-      const result = await addUserCollection.deleteOne(query)
-      res.json(result)
-    })
+    // app.delete("/add/:id", async (req, res) => {
+    //   const id = req.params.id
+    //   const query = { _id: ObjectId(id) }
+    //   const result = await addUserCollection.deleteOne(query)
+    //   res.json(result)
+    // })
 
     // .......................
     // .......................
@@ -387,7 +390,7 @@ async function run() {
     // .......................
 
     app.post("/register", async (req, res) => {
-      const { firstName, lastName, email, password } = req.body
+      const { firstName, lastName, email, password, role } = req.body
 
       // Create a new user object
       const user = {
@@ -395,6 +398,7 @@ async function run() {
         lastName,
         email,
         password, // Store the password in plain text
+        role: 'User',
       }
 
       try {
@@ -489,14 +493,14 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc)
       res.json(result)
     })
-    // get all user
-    app.get("/user", async (req, res) => {
-      const cursor = userCollection.find({})
-      const user = await cursor.toArray()
-      res.send(user)
-    })
+    // // get all user
+    // app.get("/user", async (req, res) => {
+    //   const cursor = userCollection.find({})
+    //   const user = await cursor.toArray()
+    //   res.send(user)
+    // })
   } finally {
-    // await client.close();
+
   }
 }
 
@@ -510,3 +514,5 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log("server running at port ", port)
 })
+
+
