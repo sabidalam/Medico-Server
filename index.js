@@ -214,7 +214,7 @@ async function run() {
           total_amount: ordersWithStatusAndDate?.[0]?.price,
           currency: "BDT",
           tran_id: tran_id, // use unique tran_id for each api call
-          success_url: `https://medico-server.onrender.com/payment/sucess/${tran_id}`,
+          success_url: `http://localhost:5000/payment/sucess/${tran_id}`,
           fail_url: "http://localhost:3030/fail",
           cancel_url: "http://localhost:3030/cancel",
           ipn_url: "http://localhost:3030/ipn",
@@ -279,7 +279,7 @@ async function run() {
 
       if (result.modifiedCount > 0) {
         res.redirect(
-          `https://medico-eb8e9.web.app/payment/sucess/${req.params.tranId}`
+          `http://localhost:3000/payment/sucess/${req.params.tranId}`
         )
       }
     })
