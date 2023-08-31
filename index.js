@@ -214,7 +214,7 @@ async function run() {
           total_amount: ordersWithStatusAndDate?.[0]?.price,
           currency: "BDT",
           tran_id: tran_id, // use unique tran_id for each api call
-          success_url: `http://localhost:5000/payment/sucess/${tran_id}`,
+          success_url: `https://medico-server.onrender.com/payment/sucess/${tran_id}`,
           fail_url: "http://localhost:3030/fail",
           cancel_url: "http://localhost:3030/cancel",
           ipn_url: "http://localhost:3030/ipn",
@@ -254,7 +254,7 @@ async function run() {
               tranjectionId: tran_id,
             }
           })
-          console.log("final oreder", finalOrder)
+          console.log("final order", finalOrder)
           const result = orderCollection.insertMany(finalOrder)
           console.log("Redirecting to: ", GatewayPageURL)
         })
@@ -279,7 +279,7 @@ async function run() {
 
       if (result.modifiedCount > 0) {
         res.redirect(
-          `http://localhost:3000/payment/sucess/${req.params.tranId}`
+          `https://medico-eb8e9.web.app/payment/sucess/${req.params.tranId}`
         )
       }
     })
@@ -398,7 +398,7 @@ async function run() {
         lastName,
         email,
         password, // Store the password in plain text
-        role: 'User',
+        role: 'user',
       }
 
       try {
@@ -444,28 +444,46 @@ async function run() {
       res.status(200).json(userData)
     })
 
-    app.post("/assign-role", async (req, res) => {
-      const { userId, newRole } = req.body
+    //Assign Role
 
-      try {
-        // Convert the user ID string to ObjectId
-        const userIdObject = new ObjectId(userId)
+    // app.post("/assign-role", async (req, res) => {
+    //   const { userId, newRole } = req.body
 
-        // Update the user document in the database
-        const result = await userCollection.updateOne(
-          { _id: userIdObject },
-          { $set: { role: newRole } }
-        )
+    //   try {
+    //     // Convert the user ID string to ObjectId
+    //     const userIdObject = new ObjectId(userId)
 
-        if (result.matchedCount === 0) {
-          return res.status(404).json("User not found")
-        }
+    //     // Update the user document in the database
+    //     const result = await userCollection.updateOne(
+    //       { _id: userIdObject },
+    //       { $set: { role: newRole } }
+    //     )
 
-        res.status(200).json("Role assigned successfully")
-      } catch (error) {
-        console.error("Error assigning role:", error)
-        res.status(500).json("Failed to assign role")
+    //     if (result.matchedCount === 0) {
+    //       return res.status(404).json("User not found")
+    //     }
+
+    //     res.status(200).json("Role assigned successfully")
+    //   } catch (error) {
+    //     console.error("Error assigning role:", error)
+    //     res.status(500).json("Failed to assign role")
+    //   }
+    // })
+
+    app.put("/assign-role", async (req, res) => {
+      const { _id, role } = req.body // Access the _id and status from the request body
+      console.log(_id, role);
+
+      const filter = { _id: ObjectId(_id) } // Use the _id as it is, without converting to ObjectId
+      const update = { $set: { role } }
+      const result = await userCollection.updateOne(filter, update)
+      console.log("Matched count:", result.matchedCount) // Debug statement to check matched count
+
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ error: "Not" })
       }
+
+      res.json(result)
     })
 
     // Retrieve all users API
@@ -484,15 +502,17 @@ async function run() {
       res.status(200).json("Logged out successfully")
     })
 
-    // set user role
-    app.put("/userRole", async (req, res) => {
-      const user = req.body
-      console.log("user", user)
-      const filter = { email: user.email }
-      const updateDoc = { $set: { role: user?.role } }
-      const result = await userCollection.updateOne(filter, updateDoc)
-      res.json(result)
-    })
+    // // set user role
+    // app.put("/userRole", async (req, res) => {
+    //   const user = req.body
+    //   console.log("user", user)
+    //   const filter = { email: user.email }
+    //   const updateDoc = { $set: { role: user?.role } }
+    //   const result = await userCollection.updateOne(filter, updateDoc)
+    //   res.json(result)
+    // })
+
+
     // // get all user
     // app.get("/user", async (req, res) => {
     //   const cursor = userCollection.find({})
